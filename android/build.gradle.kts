@@ -1,7 +1,7 @@
 // android/build.gradle.kts
 
 buildscript {
-    val kotlinVersion by extra("1.9.24")
+    extra["kotlinVersion"] = "1.9.24"
 
     repositories {
         google()
@@ -9,11 +9,10 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:8.7.0")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+        classpath("com.android.tools.build:gradle:8.9.0") // обновлено до 8.9
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${extra["kotlinVersion"]}")
     }
 }
-
 
 allprojects {
     repositories {
@@ -26,11 +25,8 @@ allprojects {
 rootProject.buildDir = file("../build")
 
 subprojects {
-    project.buildDir = file("${rootProject.buildDir}/${project.name}")
-}
-
-subprojects {
-    project.evaluationDependsOn(":app")
+    buildDir = file("${rootProject.buildDir}/${name}")
+    evaluationDependsOn(":app")
 }
 
 // Clean task
