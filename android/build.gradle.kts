@@ -1,7 +1,7 @@
 // android/build.gradle.kts
 
 buildscript {
-    extra["kotlinVersion"] = "1.9.24"
+    val kotlinVersion = "1.9.24" // ✅ просто переменная, без extra
 
     repositories {
         google()
@@ -9,8 +9,8 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:8.9.0") // обновлено до 8.9
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${extra["kotlinVersion"]}")
+        classpath("com.android.tools.build:gradle:8.9.0") // ✅ актуальная версия
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     }
 }
 
