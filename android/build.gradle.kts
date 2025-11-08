@@ -1,35 +1,42 @@
-// android/build.gradle.kts
+plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("dev.flutter.flutter-gradle-plugin")
+}
 
-buildscript {
-    val kotlinVersion = "1.9.24" // ✅ просто переменная, без extra
+android {
+    namespace = "com.example.dwlq"
+    compileSdk = 34
 
-    repositories {
-        google()
-        mavenCentral()
+    defaultConfig {
+        applicationId = "com.example.dwlq"
+        minSdk = 21
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0.0"
     }
 
-    dependencies {
-        classpath("com.android.tools.build:gradle:8.9.0") // ✅ актуальная версия
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            // signingConfig = signingConfigs.debug // ← добавишь позже, если нужна подпись
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    sourceSets {
+        getByName("main").java.srcDirs("src/main/kotlin")
     }
 }
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-
-// Настройка директорий сборки
-rootProject.buildDir = file("../build")
-
-subprojects {
-    buildDir = file("${rootProject.buildDir}/${name}")
-    evaluationDependsOn(":app")
-}
-
-// Clean task
-tasks.register<Delete>("clean") {
-    delete(rootProject.buildDir)
+flutter {
+    source = "../.."
 }
