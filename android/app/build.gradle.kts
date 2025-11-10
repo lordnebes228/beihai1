@@ -1,7 +1,6 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    // УДАЛИТЕ эту строку: id("dev.flutter.flutter-gradle-plugin")
 }
 
 android {
@@ -20,7 +19,6 @@ android {
         getByName("release") {
             isMinifyEnabled = false
             isShrinkResources = false
-            // signingConfig = signingConfigs.debug
         }
     }
 
@@ -32,10 +30,8 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
-
-    sourceSets {
-        getByName("main").java.srcDirs("src/main/kotlin")
-    }
 }
 
-// УДАЛИТЕ весь блок flutter { }
+dependencies {
+    implementation(project(":flutter"))
+}
