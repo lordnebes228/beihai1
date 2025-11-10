@@ -1,7 +1,6 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    // Flutter plugin должен подключаться после Android и Kotlin
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -17,6 +16,22 @@ android {
         versionName = "1.0.0"
     }
 
+    buildTypes {
+        getByName("release") {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            // signingConfig = signingConfigs.debug // ← добавишь позже, если нужна подпись
+        }
+        getByName("debug") {
+            isMinifyEnabled = false
+            isShrinkResources = false
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -24,29 +39,11 @@ android {
 
     kotlinOptions {
         jvmTarget = "17"
+        freeCompilerArgs = freeCompilerArgs + listOf("-Xskip-build-dependency-validation")
     }
 
     sourceSets {
         getByName("main").java.srcDirs("src/main/kotlin")
-    }
-
-    buildTypes {
-        getByName("release") {
-            isMinifyEnabled = true
-            isShrinkResources = false // <-- отключаем, чтобы не ломало билд
-
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-
-            signingConfig = signingConfigs.getByName("debug")
-        }
-
-        getByName("debug") {
-            isMinifyEnabled = false
-            isShrinkResources = false
-        }
     }
 }
 
