@@ -6,12 +6,11 @@ workflows:
       flutter: stable
       java: 17
     scripts:
-      - name: Fix Android project structure
-        script: |
-          flutter create --platforms android --project-name dwlq .
       - name: Get Flutter dependencies
         script: flutter pub get
       - name: Build release APK
-        script: flutter build apk --release --android-skip-build-dependency-validation
+        script: |
+          flutter clean
+          flutter build apk --release --android-skip-build-dependency-validation
     artifacts:
       - build/app/outputs/flutter-apk/app-release.apk
