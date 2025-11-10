@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.dwlq"
-        minSdk = flutter.minSdkVersion
+        minSdk = 21
         targetSdk = 34
         versionCode = 1
         versionName = "1.0.0"
@@ -18,17 +18,9 @@ android {
 
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-            // signingConfig = signingConfigs.debug
-        }
-        getByName("debug") {
             isMinifyEnabled = false
             isShrinkResources = false
+            // signingConfig = signingConfigs.debug
         }
     }
 
@@ -39,7 +31,6 @@ android {
 
     kotlinOptions {
         jvmTarget = "17"
-        freeCompilerArgs = freeCompilerArgs + listOf("-Xskip-build-dependency-validation")
     }
 
     sourceSets {
