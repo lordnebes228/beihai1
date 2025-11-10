@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.dwlq"
-        minSdk = 21
+        minSdk = flutter.minSdkVersion
         targetSdk = 34
         versionCode = 1
         versionName = "1.0.0"
@@ -24,7 +24,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // signingConfig = signingConfigs.debug // ← добавишь позже, если нужна подпись
+            // signingConfig = signingConfigs.debug
         }
         getByName("debug") {
             isMinifyEnabled = false
