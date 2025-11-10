@@ -6,6 +6,9 @@ workflows:
       flutter: stable
       java: 17
     scripts:
+      - name: Fix Android project structure
+        script: |
+          flutter create --platforms android --project-name dwlq .
       - name: Get Flutter dependencies
         script: flutter pub get
       - name: Build release APK
