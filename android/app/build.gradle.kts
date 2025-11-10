@@ -1,7 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    // Flutter plugin должен подключаться после Android и Kotlin
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -31,25 +31,23 @@ android {
     }
 
     buildTypes {
-    getByName("release") {
-        isMinifyEnabled = true
-        isShrinkResources = true
+        getByName("release") {
+            isMinifyEnabled = true
+            isShrinkResources = false // <-- отключаем, чтобы не ломало билд
 
-        proguardFiles(
-            getDefaultProguardFile("proguard-android-optimize.txt"),
-            "proguard-rules.pro"
-        )
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
 
-        signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("debug")
+        }
+
+        getByName("debug") {
+            isMinifyEnabled = false
+            isShrinkResources = false
+        }
     }
-
-    getByName("debug") {
-        isMinifyEnabled = false
-        isShrinkResources = false
-    }
-}
-
-
 }
 
 flutter {
