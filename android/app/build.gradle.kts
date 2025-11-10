@@ -1,7 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("dev.flutter.flutter-gradle-plugin")
+    // УДАЛИТЕ эту строку: id("dev.flutter.flutter-gradle-plugin")
 }
 
 android {
@@ -38,6 +38,4 @@ android {
     }
 }
 
-flutter {
-    source = "../.."
-}
+// УДАЛИТЕ весь блок flutter { }
