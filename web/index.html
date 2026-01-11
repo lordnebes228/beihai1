@@ -1,38 +1,329 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Грузовик Данных — Вариационная Модель</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+            --success: #22c55e;
+        }
 
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+        .container {
+            max-width: 1000px;
+            width: 100%;
+        }
 
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
-  <base href="$FLUTTER_BASE_HREF">
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
 
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+        h1 { font-size: 2.5rem; margin-bottom: 10px; background: linear-gradient(90deg, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="dwlq">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+        /* Панель управления */
+        .dashboard {
+            background: var(--card);
+            padding: 25px;
+            border-radius: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 30px;
+        }
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+        .control-item { display: flex; flex-direction: column; gap: 10px; }
+        
+        label { font-size: 0.9rem; color: #94a3b8; font-weight: 600; }
 
-  <title>dwlq</title>
-  <link rel="manifest" href="manifest.json">
+        select {
+            background: #334155;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .btns { display: flex; gap: 10px; align-items: flex-end; }
+
+        button {
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-start { background: var(--primary); color: white; flex-grow: 2; }
+        .btn-start:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4); }
+
+        .btn-race { background: #f59e0b; color: white; flex-grow: 1; }
+        .btn-race:hover { background: #d97706; }
+
+        /* Трассы */
+        #tracks-container {
+            background: #020617;
+            padding: 20px;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid #334155;
+        }
+
+        .track-wrapper {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .track-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+            color: #64748b;
+        }
+
+        .road {
+            height: 60px;
+            background: #1e293b;
+            border-radius: 10px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            border-left: 8px solid #475569;
+            /* Анимированная разметка */
+            background-image: linear-gradient(90deg, transparent 50%, rgba(255,255,255,0.05) 50%);
+            background-size: 40px 100%;
+        }
+
+        .road.animating {
+            animation: moveRoad 0.5s linear infinite;
+        }
+
+        @keyframes moveRoad {
+            from { background-position: 0 0; }
+            to { background-position: -40px 0; }
+        }
+
+        .truck {
+            position: absolute;
+            left: 0;
+            width: 70px;
+            font-size: 35px;
+            text-align: center;
+            transition: left 0.1s linear;
+            z-index: 10;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+        }
+
+        .cargo-tag {
+            position: absolute;
+            top: -15px;
+            background: var(--primary);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        /* Статистика */
+        .stats-bar {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-value { font-size: 1.8rem; font-weight: 800; color: var(--success); display: block; }
+        .stat-label { font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+
+        .progress-mini {
+            height: 6px;
+            background: #334155;
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .progress-bar { height: 100%; width: 0%; background: var(--success); transition: width 0.1s linear; }
+    </style>
 </head>
 <body>
-  <script src="flutter_bootstrap.js" async></script>
+
+<div class="container">
+    <header>
+        <h1>Грузовик с Данными 2.0</h1>
+        <p>Вариационное моделирование пропускной способности сетей</p>
+    </header>
+
+    <div class="dashboard">
+        <div class="control-item">
+            <label>ТИП КОНТЕНТА</label>
+            <select id="cargo">
+                <option value="5">Фотография (5 МБ)</option>
+                <option value="50">Музыкальный альбом (50 МБ)</option>
+                <option value="500">Фильм HD (500 МБ)</option>
+                <option value="2000">Тяжелая игра (2 ГБ)</option>
+            </select>
+        </div>
+
+        <div class="control-item">
+            <label>СЕТЬ (СКОРОСТЬ)</label>
+            <select id="speed">
+                <option value="2">3G (Медленно) - 2 МБ/с</option>
+                <option value="40" selected>4G (Средне) - 40 МБ/с</option>
+                <option value="300">5G (Быстро) - 300 МБ/с</option>
+                <option value="800">Wi-Fi 6 (Ракета) - 800 МБ/с</option>
+            </select>
+        </div>
+
+        <div class="control-item">
+            <label>КАЧЕСТВО СВЯЗИ</label>
+            <select id="quality">
+                <option value="1">Идеальное (100%)</option>
+                <option value="0.5">Помехи (-50%)</option>
+                <option value="0.1">Еле ловит (-90%)</option>
+            </select>
+        </div>
+
+        <div class="btns">
+            <button class="btn-start" onclick="singleRun()">СТАРТ</button>
+            <button class="btn-race" onclick="raceRun()">ГОНКА</button>
+        </div>
+    </div>
+
+    <div id="tracks-container">
+        </div>
+
+    <div class="stats-bar">
+        <div class="stat-card">
+            <span class="stat-value" id="stat-progress">0%</span>
+            <span class="stat-label">Прогресс загрузки</span>
+            <div class="progress-mini"><div class="progress-bar" id="main-bar"></div></div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-value" id="stat-time">0.0с</span>
+            <span class="stat-label">Времени прошло</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    const container = document.getElementById('tracks-container');
+    const emojis = { '2': '🚜', '40': '🚚', '300': '🏎️', '800': '🚀' };
+    let intervals = [];
+
+    function createTrack(id, name, speed, cargo, quality, isRace) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'track-wrapper';
+        const realSpeed = speed * quality;
+        
+        wrapper.innerHTML = `
+            <div class="track-info">
+                <span>${name} (${realSpeed} МБ/с)</span>
+                <span id="finish-${id}"></span>
+            </div>
+            <div class="road" id="road-${id}">
+                <div class="truck" id="truck-${id}" style="left: 0">
+                    <div class="cargo-tag">${cargo} МБ</div>
+                    ${emojis[speed] || '🚚'}
+                </div>
+            </div>
+        `;
+        return wrapper;
+    }
+
+    function clearTracks() {
+        intervals.forEach(clearInterval);
+        intervals = [];
+        container.innerHTML = '';
+        document.getElementById('main-bar').style.width = '0%';
+    }
+
+    function runLogic(id, speed, cargo, quality, onUpdate) {
+        const truck = document.getElementById(`truck-${id}`);
+        const road = document.getElementById(`road-${id}`);
+        const finishText = document.getElementById(`finish-${id}`);
+        road.classList.add('animating');
+        
+        let loaded = 0;
+        const realSpeed = speed * quality;
+        const startTime = Date.now();
+        const roadWidth = road.offsetWidth - 80;
+
+        const timer = setInterval(() => {
+            loaded += realSpeed / 10;
+            let percent = Math.min((loaded / cargo) * 100, 100);
+            
+            truck.style.left = (percent * roadWidth / 100) + 'px';
+            if (onUpdate) onUpdate(percent, (Date.now() - startTime)/1000);
+
+            if (percent >= 100) {
+                clearInterval(timer);
+                road.classList.remove('animating');
+                finishText.innerText = 'ФИНИШ! 🏆';
+                finishText.style.color = '#22c55e';
+            }
+        }, 100);
+        intervals.push(timer);
+    }
+
+    function singleRun() {
+        clearTracks();
+        const cargo = parseFloat(document.getElementById('cargo').value);
+        const speed = parseFloat(document.getElementById('speed').value);
+        const quality = parseFloat(document.getElementById('quality').value);
+        const name = document.getElementById('speed').options[document.getElementById('speed').selectedIndex].text.split('(')[0];
+
+        container.appendChild(createTrack('single', name, speed, cargo, quality));
+        
+        runLogic('single', speed, cargo, quality, (p, t) => {
+            document.getElementById('stat-progress').innerText = Math.round(p) + '%';
+            document.getElementById('main-bar').style.width = p + '%';
+            document.getElementById('stat-time').innerText = t.toFixed(1) + 'с';
+        });
+    }
+
+    function raceRun() {
+        clearTracks();
+        const cargo = parseFloat(document.getElementById('cargo').value);
+        const quality = parseFloat(document.getElementById('quality').value);
+        const options = document.getElementById('speed').options;
+
+        for (let i = 0; i < options.length; i++) {
+            const speed = parseFloat(options[i].value);
+            const name = options[i].text.split('(')[0];
+            container.appendChild(createTrack(i, name, speed, cargo, quality));
+            runLogic(i, speed, cargo, quality);
+        }
+    }
+</script>
+
 </body>
 </html>
